@@ -1,11 +1,14 @@
 # Prerequisites
 *.d
+API_Keys.py
 
 # Object files
 *.o
 *.ko
 *.obj
 *.elf
+*.cache
+__pycache__
 
 # Linker output
 *.ilk
