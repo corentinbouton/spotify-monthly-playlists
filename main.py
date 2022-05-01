@@ -1,28 +1,15 @@
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-import json
-from API_Keys import CLIENT_ID, CLIENT_SECRET
-from classes import Track, Playlist
+from fonctions import get_liked_playlist, get_playlists, initialisation, month_number_to_name
 
-REDIRECT_URI = 'http://localhost:8080'
-scope = "user-library-read"
+def main():
+	scopes = "user-library-read"
+	clt = initialisation(scopes)
+	
+	liked_playlist = get_liked_playlist(clt)
+	#liked_playlist.print_playlist()
 
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, client_id=CLIENT_ID, client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI))
+	playlists = get_playlists(clt)
 
-results = sp.current_user_saved_tracks(limit=1) # API call to get the total number of liked songs
+	print(month_number_to_name(int(liked_playlist.list_tracks[0].date_added[5:7])))
 
-offset = 0
-idx = 0
-
-liked = Playlist("Titres likés")
-
-while idx < results['total']:
-	results = sp.current_user_saved_tracks(limit=50, offset=offset)
-	for item in results['items']:
-		idx += 1
-		track_data = item['track']
-		track = Track(track_data['name'], track_data['artists'][0]['name'], item['added_at'], track_data['id'])
-		liked.add_track(track)
-	offset += 50
-
-liked.print_playlist()
+if __name__ == "__main__":
+	main()
