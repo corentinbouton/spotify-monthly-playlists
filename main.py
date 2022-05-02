@@ -1,15 +1,14 @@
-from fonctions import get_liked_playlist, get_playlists, initialisation, month_number_to_name
+from fonctions import create_monthly_playlists, get_liked_playlist, get_playlists, init_client
 
 def main():
 	scopes = "user-library-read"
-	clt = initialisation(scopes)
+	clt = init_client(scopes)
 	
 	liked_playlist = get_liked_playlist(clt)
-	#liked_playlist.print_playlist()
 
 	playlists = get_playlists(clt)
 
-	print(month_number_to_name(int(liked_playlist.list_tracks[0].date_added[5:7])))
+	monthly_playlists = create_monthly_playlists(liked_playlist, playlists)
 
 if __name__ == "__main__":
 	main()
