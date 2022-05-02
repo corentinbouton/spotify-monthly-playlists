@@ -32,7 +32,3 @@ class Playlist:
 		print(f"Name : {self.name}")
 		print(f"Total tracks : {self.total}")
 		print(f"ID : {self.id}")
-
-	# TODO : à implémenter
-	def __upload_playlist(self):
-		print()

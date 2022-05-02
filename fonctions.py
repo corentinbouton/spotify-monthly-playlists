@@ -148,3 +148,56 @@ def create_monthly_playlists(liked_playlist, playlists):
 			i -= 1
 
 	return monthly_playlists
+
+def get_playlist_id(clt, name):
+	"""Returns the a playlist's ID using an API call (through the get_playlists function)
+
+	Args:
+		clt (Spotify): A client
+		name (string): Name of the playlist you are looking for
+
+	Returns:
+		string: The playlist's ID
+	"""
+	playlists = get_playlists(clt)
+
+	for pls in playlists:
+		if pls.name == name:
+			return pls.id
+		else:
+			return -1
+
+def upload_monthly_playlists(clt, monthly_playlists, playlists):
+	"""Creates the monthly Playlists on my Spotify account
+
+	Args:
+		clt (Spotify): A client
+		monthly_playlists (list): List of my monthly Playlists
+		playlists (list): List of the current Playlists on my account
+
+	Returns:
+		_type_: _description_
+	"""
+	n_playlists = 0
+	n_tracks = 0
+
+	for pls in monthly_playlists:
+		if not playlist_exists(pls.name, playlists):
+			clt.user_playlist_create("corentin.btn", pls.name)
+			n_playlists += 1
+
+			# ID gathering sequence
+			pid = get_playlist_id(clt, pls.name)
+			if pid != -1:
+				pls.id = pid
+			else:
+				print(f"An error occured creating the playlist {pls.name}!")
+				exit()
+
+			tracks_ids = []
+			for i in range(len(pls.tracks)-1, -1, -1):
+				tracks_ids.append(pls.tracks[i].id)
+			clt.playlist_add_items(pls.id, tracks_ids)
+			n_tracks += 1
+
+	return n_playlists, n_tracks
