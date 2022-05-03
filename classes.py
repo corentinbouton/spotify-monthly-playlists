@@ -5,8 +5,8 @@ class Track:
 		self.date_added = date_added
 		self.id = id
   
-	def print_track(self):
-		print(f"{self.name} - {self.artist} - {self.date_added} - {self.id}")
+	def __repr__(self):
+		return f"{self.name} - {self.artist} - {self.date_added} - {self.id}"
 
 class Playlist:
 	def __init__(self, name, total=0, id=""):
@@ -14,21 +14,20 @@ class Playlist:
 		self.total = total
 		self.tracks = []
 		self.id = id
+
+	def __repr__(self):
+		return f"Name : {self.name}\nTotal tracks : {self.total}\nID : {self.id}"
 		
 	def add_track(self, track):
 		self.tracks.append(track)
 		self.total += 1
-  
-	# ! à revoir : il faut passer un integer dans la méthode "pop" --> créer une fonction retournant l'entier correspondant au track
-	def __remove_track(self, track):
-		self.tracks.pop(track)
-		self.total -= 1
-  
-	def print_playlist_tracks(self):
-		for track in self.tracks:
-			track.print_track()
 
-	def print_playlist_info(self):
-		print(f"Name : {self.name}")
-		print(f"Total tracks : {self.total}")
-		print(f"ID : {self.id}")
+	def remove_track(self, track):
+		for i in range(len(self.tracks)):
+			if self.tracks[i].id == track.id:
+				self.tracks.pop(i)
+				self.total -= 1
+
+	def print_tracks(self):
+		for track in self.tracks:
+			print(track)

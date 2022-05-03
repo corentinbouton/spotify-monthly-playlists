@@ -2,7 +2,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from API_Keys import CLIENT_ID, CLIENT_SECRET
 from classes import Track, Playlist
-import datetime
+from datetime import datetime, date
 import locale
 
 REDIRECT_URI = 'http://localhost:8080' # URI from the my personal Spotify App
@@ -74,7 +74,7 @@ def month_number_to_name(number):
 	"""Returns the french name of a month trough its number
 
 	Args:
-		number (string): The number of the month
+		number (int): The number of the month
 
 	Returns:
 		string: Name of the month in french
@@ -84,7 +84,7 @@ def month_number_to_name(number):
 	monthint = list(range(1,13))
 	months = []
 	for X in monthint:
-		month = datetime.date(1900, X , 1).strftime('%B')
+		month = date(1900, X , 1).strftime('%B')
 		new_string=""
 		for i in range(len(month)):
 			if i==0:
@@ -93,7 +93,18 @@ def month_number_to_name(number):
 				new_string+=month[i]
 		months.append(new_string)
 
-	return months[int(number)-1]
+	return months[number-1]
+
+def get_track_month(track):
+	"""Returns the month number on which the track was added to my library
+
+	Args:
+		track (Track): A Track
+
+	Returns:
+		int: Month number
+	"""
+	return int(track.date_added[5:7])
 
 def get_monthly_name(track):
 	"""Returns the name of the monthly Playlist associated to the creation date of a track as "Mois Année"
@@ -104,7 +115,7 @@ def get_monthly_name(track):
 	Returns:
 		string: Name of the monthly Playlist
 	"""
-	return month_number_to_name(track.date_added[5:7]) + " " + track.date_added[:4]
+	return month_number_to_name(get_track_month(track)) + " " + track.date_added[:4]
 
 def playlist_exists(playlist_name, playlists):
 	"""Checks if a Playlist already exists in my Spotify database
@@ -182,7 +193,7 @@ def upload_monthly_playlists(clt, monthly_playlists, playlists):
 	n_tracks = 0
 
 	for pls in monthly_playlists:
-		if not playlist_exists(pls.name, playlists):
+		if not playlist_exists(pls.name, playlists) and datetime.now().month != get_track_month(pls.tracks[0]):
 			clt.user_playlist_create("corentin.btn", pls.name)
 			n_playlists += 1
 
@@ -198,6 +209,6 @@ def upload_monthly_playlists(clt, monthly_playlists, playlists):
 			for i in range(len(pls.tracks)-1, -1, -1):
 				tracks_ids.append(pls.tracks[i].id)
 			clt.playlist_add_items(pls.id, tracks_ids)
-			n_tracks += 1
+			n_tracks += len(pls.tracks)
 
 	return n_playlists, n_tracks
