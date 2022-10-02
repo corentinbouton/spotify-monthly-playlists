@@ -1,11 +1,17 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from API_Keys import CLIENT_ID, CLIENT_SECRET
 from classes import Track, Playlist
 from datetime import datetime, date
 import locale
+import json
 
 REDIRECT_URI = 'http://localhost:8080' # URI from the my personal Spotify App
+
+with open("../keys/api_keys.json", "r") as file:
+	keys = json.load(file)
+	CLIENT_ID = keys["CLIENT_ID"]
+	CLIENT_SECRET = keys["CLIENT_SECRET"]
+	del keys
 
 def init_client(scopes):
 	"""Initializes a client with certain scopes to access the Spotify API

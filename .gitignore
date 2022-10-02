@@ -1,6 +1,6 @@
 # Prerequisites
 *.d
-API_Keys.py
+keys/
 
 # Object files
 *.o
