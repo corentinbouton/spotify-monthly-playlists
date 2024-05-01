@@ -1,23 +1,21 @@
-# Spotify API
+# Spotify Monthly Playlist Generator
 
-## Table des matières
+## Table of Contents
 * [Introduction](#introduction)
 * [Technologies](#technologies)
-* [Compilation et lancement](#compilation-et-lancement)
+* [Installation and Usage](#installation-and-usage)
 
 ## Introduction
-Ce projet consiste à utiliser l'API Spotify afin de générer des playlists automatiquement.
-
-Ce programme récupère l'entièreté des titres "likés" dans ma bibliothèque Spotify, les tri et les classe dans une playlist correspondant au mois auquel le titre a été liké.
-
-Par exemple, la playlist créée appellée "Avril 2022" contiendra tous les titres que j'ai liké en avril 2022.
-
-Ces playlists - du type "Mois Année" - sont ensuite ajoutées à mon compte Spotify.
+The Spotify Monthly Playlist Generator is a Python application designed to automate the creation of playlists based on liked tracks in a user's Spotify library. It categorizes tracks by the month they were liked and generates playlists accordingly.
 
 ## Technologies
-Ce programme est 100% écrit en Python.
-Il utilise la bibliothèque Python "Spotipy", elle-même conçue pour utiliser l'API Spotify.
+The application is written in Python and utilizes the Spotipy library to interact with the Spotify API. Tested on Python@3.12.0 with librairies listed in `requirements.txt`.
 
-## Compilation et lancement
-Pour lancer le programme, il suffit d'exécuter "main.py".
-Version utilisée pour tester le projet : Python 3.10.
+## Installation and Usage
+1. Clone the repository.
+2. Install the required libraries using `pip install -r requirements.txt`.
+3. Ensure you have a Spotify developer account and obtain the necessary API credentials.
+4. Add a JSON file as `./keys/api_keys.json`: `{"CLIENT_ID": "your_spotify_client_id", "CLIENT_SECRET": "your_spotify_client_secret"}`
+5. Run the program by executing `python main.py "your_spotify_username"`.
+6. Follow the prompts to authorize the application to access your Spotify account and generate playlists.
+7. Playlists with the format "Month Year" will be created and added to your Spotify account automatically.

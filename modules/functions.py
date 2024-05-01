@@ -1,44 +1,48 @@
+# GLOBAL IMPORTS #
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from classes import Track, Playlist
 from datetime import datetime, date
 import locale
 import json
 
+# CUSTOM IMPORTS #
+from classes.Playlist import Playlist
+from classes.Track import Track
+
 REDIRECT_URI = 'http://localhost:8080' # URI from the my personal Spotify App
 
-with open("../keys/api_keys.json", "r") as file:
+with open('./keys/api_keys.json', 'r') as file:
 	keys = json.load(file)
-	CLIENT_ID = keys["CLIENT_ID"]
-	CLIENT_SECRET = keys["CLIENT_SECRET"]
+	CLIENT_ID = keys['CLIENT_ID']
+	CLIENT_SECRET = keys['CLIENT_SECRET']
 	del keys
 
-def init_client(scopes):
-	"""Initializes a client with certain scopes to access the Spotify API
+def init_client(scopes: str) -> spotipy.Spotify:
+	"""Initializes a client with certain scopes to access the Spotify API.
 
 	Args:
 		scopes (string): Scopes from the Spotify API to be passed like : "scope1 scope2 ..."
 
 	Returns:
-		Spotify: A client granting the specified access by the scopes
+		Spotify: A client granting the specified access by the scopes.
 	"""
 	return spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes, client_id=CLIENT_ID, client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI))
 
-def get_liked_playlist(clt):
-	"""Calls the Spotify API to return a Playlist of all my liked tracks
+def get_liked_playlist(clt: spotipy.Spotify) -> Playlist:
+	"""Calls the Spotify API to return a Playlist of all my liked tracks.
 
 	Args:
-		clt (Spotify): A client granted reading access
+		clt (Spotify): A client granted reading access.
 
 	Returns:
-		Playlist: Playlist of all my liked tracks
+		Playlist: Playlist of all my liked tracks.
 	"""
 	total = clt.current_user_saved_tracks(limit=1)['total'] # API call to get the total number of liked songs
 
 	offset = 0
 	idx = 0
 
-	liked = Playlist("Titres likés")
+	liked = Playlist('Titres likés')
 
 	while idx < total:
 		results = clt.current_user_saved_tracks(limit=50, offset=offset)
@@ -51,24 +55,23 @@ def get_liked_playlist(clt):
 
 	return liked
 
-def get_playlists(clt):
-	"""Calls the spotify API to get all of my Playlists
+def get_playlists(clt: spotipy.Spotify, username: str) -> list[Playlist]:
+	"""Calls the spotify API to get all of my Playlists.
 
 	Args:
-		clt (Spotify): A client granting reading access
+		clt (Spotify): A client granting reading access.
 
 	Returns:
-		list: List of all my Playlists
+		list: List of all my Playlists.
 	"""
-	total = clt.user_playlists("corentin.btn", limit=1)['total']
-	
+	total = clt.user_playlists(username, limit=1)['total']
+
 	offset = 0
 	idx = 0
 	playlists = []
-
 	while idx < total:
-		result = clt.user_playlists("corentin.btn", limit=50, offset=offset)
-		
+		result = clt.user_playlists(username, limit=50, offset=offset)
+
 		for pls in result['items']:
 			idx += 1
 			playlists.append(Playlist(pls['name'], pls['tracks']['total'], id=pls['id']))
@@ -76,22 +79,22 @@ def get_playlists(clt):
 
 	return playlists
 
-def month_number_to_name(number):
-	"""Returns the french name of a month trough its number
+def month_number_to_name(number: int) -> str:
+	"""Returns the French name of a month trough its number.
 
 	Args:
-		number (int): The number of the month
+		number (int): The number of the month.
 
 	Returns:
-		string: Name of the month in french
+		string: Name of the month in French.
 	"""
-	locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
+	locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
 	monthint = list(range(1,13))
 	months = []
 	for X in monthint:
 		month = date(1900, X , 1).strftime('%B')
-		new_string=""
+		new_string=''
 		for i in range(len(month)):
 			if i==0:
 				new_string+=month[i].upper()
@@ -101,7 +104,7 @@ def month_number_to_name(number):
 
 	return months[number-1]
 
-def get_track_month(track):
+def get_track_month(track: Track) -> int:
 	"""Returns the month number on which the track was added to my library
 
 	Args:
@@ -112,23 +115,23 @@ def get_track_month(track):
 	"""
 	return int(track.date_added[5:7])
 
-def get_monthly_name(track):
-	"""Returns the name of the monthly Playlist associated to the creation date of a track as "Mois Année"
+def get_monthly_name(track: Track) -> str:
+	"""Returns the name of the monthly Playlist associated to the creation date of a track as "Mois Année".
 
 	Args:
-		track (Track): A Track
+		track (Track): A Track.
 
 	Returns:
-		string: Name of the monthly Playlist
+		string: Name of the monthly Playlist.
 	"""
-	return month_number_to_name(get_track_month(track)) + " " + track.date_added[:4]
+	return ' '.join([month_number_to_name(get_track_month(track)), track.date_added[:4]])
 
-def playlist_exists(playlist_name, playlists):
+def playlist_exists(playlist_name: str, playlists: list[Playlist]) -> bool:
 	"""Checks if a Playlist already exists in my Spotify database
 
 	Args:
 		playlist_name (string): Name of the Playlist to check
-		playlists (list): List of all my Playlists
+		playlists (list[Playlist]): List of all my Playlists
 
 	Returns:
 		bool: True if it already exists, False otherwise
@@ -138,7 +141,7 @@ def playlist_exists(playlist_name, playlists):
 			return True
 	return False
 
-def create_monthly_playlists(liked_playlist, playlists):
+def create_monthly_playlists(liked_playlist: Playlist, playlists: list[Playlist]) -> list[Playlist]:
 	"""Returns a list of monthly Playlists to add if they do not already exist
 
 	Args:
@@ -166,7 +169,7 @@ def create_monthly_playlists(liked_playlist, playlists):
 
 	return monthly_playlists
 
-def get_playlist_id(clt, name):
+def get_playlist_id(clt: spotipy.Spotify, name: str) -> int:
 	"""Returns the a playlist's ID using an API call (through the get_playlists function)
 
 	Args:
@@ -174,7 +177,7 @@ def get_playlist_id(clt, name):
 		name (string): Name of the playlist you are looking for
 
 	Returns:
-		string: The playlist's ID
+		int: The playlist's ID
 	"""
 	playlists = get_playlists(clt)
 
@@ -184,16 +187,16 @@ def get_playlist_id(clt, name):
 		else:
 			return -1
 
-def upload_monthly_playlists(clt, monthly_playlists, playlists):
-	"""Creates the monthly Playlists on my Spotify account
+def upload_monthly_playlists(clt: spotipy.Spotify, monthly_playlists: list[Playlist], playlists: list[Playlist]) -> tuple[int, int]:
+	"""Creates the monthly Playlists on my Spotify account.
 
 	Args:
-		clt (Spotify): A client
-		monthly_playlists (list): List of my monthly Playlists
-		playlists (list): List of the current Playlists on my account
+		clt (Spotify): A client.
+		monthly_playlists (list): List of my monthly Playlists.
+		playlists (list): List of the current Playlists on my account.
 
 	Returns:
-		_type_: _description_
+		tuple[int, int]: Returns a tuple of the number of playlists and the total number of tracks added.
 	"""
 	n_playlists = 0
 	n_tracks = 0
@@ -208,8 +211,7 @@ def upload_monthly_playlists(clt, monthly_playlists, playlists):
 			if pid != -1:
 				pls.id = pid
 			else:
-				print(f"An error occured creating the playlist {pls.name}!")
-				exit()
+				raise(f'An error occured creating the playlist {pls.name}!')
 
 			tracks_ids = []
 			for i in range(len(pls.tracks)-1, -1, -1):
